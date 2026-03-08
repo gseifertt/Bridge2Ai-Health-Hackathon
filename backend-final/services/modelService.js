@@ -12,14 +12,15 @@ const { spawn } = require("child_process");
  *   3. Replace the mock predict() inside ml/inference_pipeline.py
  */
 async function predictDisease(processedAudioPath) {
-  if (process.env.ML_READY !== "true") {
+  if (false) {
     console.log("[modelService] ML_READY not set — returning mock prediction.");
     const risk = Math.random() > 0.5 ? "YES" : "NO";
     return { disease_risk: risk };
   }
 
   return new Promise((resolve, reject) => {
-    const py = spawn("python3", ["ml/inference_pipeline.py", processedAudioPath]);
+    console.log("[modelService] Spawning REAL XGBoost Python script...");
+    const py = spawn("python", ["ml/inference_pipeline.py", processedAudioPath]);
     let stdout = "";
 
     py.stdout.on("data", (d) => (stdout += d.toString()));

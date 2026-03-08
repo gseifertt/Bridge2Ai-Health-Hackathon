@@ -14,12 +14,21 @@ function convertAudio(inputPath) {
 
   return new Promise((resolve, reject) => {
     const outputPath = inputPath.replace(/\.[^/.]+$/, "") + "_processed.wav";
-    const py = spawn("python3", ["ml/audio_convert.py", inputPath, outputPath]);
+    let stderr = "";
+    console.log("[audioConversionService] Spawning REAL audio conversion script...");
+    const py = spawn("python", ["ml/audio_convert.py", inputPath, outputPath]);
     py.stdout.on("data", (d) => console.log(`[audio_convert] ${d}`));
-    py.stderr.on("data", (d) => console.error(`[audio_convert] ${d}`));
+    py.stderr.on("data", (d) => {
+      const msg = d.toString();
+      stderr += msg;
+      console.error(`[audio_convert] ${msg}`);
+    });
     py.on("close", (code) => {
       if (code === 0) resolve(outputPath);
-      else reject(new Error("audio_convert.py failed — check Python deps (librosa, soundfile)"));
+      else {
+        console.error("[audioConversionService] Conversion failed. Exit code:", code, "stderr:", stderr || "(none)");
+        reject(new Error(stderr || `audio_convert.py failed with exit code ${code} — check Python deps (librosa, soundfile)`));
+      }
     });
   });
 }
