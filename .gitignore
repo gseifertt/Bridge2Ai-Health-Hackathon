@@ -1,0 +1,13 @@
+# ==============================
+# SENSITIVE MEDICAL DATA & ML MODELS
+# ==============================
+*.csv
+*.tsv
+backend-final/ml/models/
+xgboost_csvs/
+train_and_test_csvs/
+
+venv/
+.venv/
+fixed-backend/venv/
+__pycache__/
