@@ -6,6 +6,7 @@ const cors = require('cors');
 //const predictRoutes = require('./routes/predictRoutes');
 //const locationRoutes = require('./routes/locationRoutes');
 const screeningRoutes = require('./routes/screeningRoutes');
+const audioRoutes = require('./routes/audioRoutes')
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 //app.use('/predict', predictRoutes);
 //app.use('/location', locationRoutes);
 app.use('/screening', screeningRoutes);
+app.use("/audio", audioRoutes);
 
 
 
