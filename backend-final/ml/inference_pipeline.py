@@ -1,35 +1,48 @@
 """
 inference_pipeline.py
 ---------------------
-Called by audioConversionService.js when ML_READY=true.
+Called by modelService.js when ML_READY=true.
 
 Usage:
     python3 ml/inference_pipeline.py <input_audio_path>
 
-Stdout (last line): JSON like {"disease_risk": "YES"} or {"disease_risk": "NO"}
-Exit code 0 = success, non-zero = failure.
-
-TODO (ML team): replace the mock predict() below with the real XGBoost model load + inference.
+Stdout (only output): JSON like {"disease_risk": "YES"} or {"disease_risk": "NO"}
+On error: {"error": "message"} to stdout, then exit non-zero.
+All other output goes to stderr.
 """
 
-import sys
 import json
+import os
+import sys
+
+import pandas as pd
+import xgboost as xgb
+
 from prepare_new_audio import extract_xgboost_features
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(SCRIPT_DIR, "models", "cough_risk_model.json")
+FEATURE_COLUMNS_PATH = os.path.join(SCRIPT_DIR, "models", "feature_columns.csv")
+
+# Load once at module level
+FEATURE_COLS = pd.read_csv(FEATURE_COLUMNS_PATH).iloc[:, 0].tolist()
+_model = None
+
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = xgb.XGBClassifier()
+        _model.load_model(MODEL_PATH)
+    return _model
 
 
 def predict(features_df):
-    """
-    TODO: Replace this mock with the real model once training is complete.
-
-    Expected swap-in:
-        import xgboost as xgb
-        model = xgb.XGBClassifier()
-        model.load_model("ml/models/respiratory_model.json")
-        prob = model.predict_proba(features_df)[0][1]
-        return "YES" if prob > 0.5 else "NO"
-    """
-    import random
-    return "YES" if random.random() > 0.5 else "NO"
+    """Threshold 0.35: score > 0.35 -> YES, else NO."""
+    model = get_model()
+    aligned = features_df.reindex(columns=FEATURE_COLS, fill_value=0)
+    proba = model.predict_proba(aligned)[0][1]
+    return "YES" if proba > 0.35 else "NO"
 
 
 def main():
@@ -41,12 +54,18 @@ def main():
 
     try:
         print(f"[pipeline] Extracting features from: {input_path}", file=sys.stderr)
-        features = extract_xgboost_features(input_path)
+        # Redirect stdout so prepare_new_audio's print() don't pollute it; only our JSON goes to stdout
+        old_stdout = sys.stdout
+        sys.stdout = sys.stderr
+        try:
+            features = extract_xgboost_features(input_path)
+        finally:
+            sys.stdout = old_stdout
 
-        print(f"[pipeline] Running prediction...", file=sys.stderr)
+        print("[pipeline] Running prediction...", file=sys.stderr)
         risk = predict(features)
 
-        # Only print JSON to stdout — Node reads this
+        # CRITICAL: Only the final JSON goes to stdout
         print(json.dumps({"disease_risk": risk}))
         sys.exit(0)
 
