@@ -1,0 +1,7 @@
+# ==============================
+# SENSITIVE MEDICAL DATA - DO NOT UPLOAD
+# ==============================
+*.csv
+*.tsv
+xgboost_csvs/
+train_and_test_csvs/
