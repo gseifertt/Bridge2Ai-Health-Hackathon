@@ -15,13 +15,13 @@ export function Instructions() {
     {
       icon: Waves,
       title: 'Sustained Vowel',
-      description: "Say 'Ahhh' steadily for about 10 seconds.",
+      description: "Say 'Ahhh' steadily for about 5 seconds.",
       color: 'bg-green-100 text-green-600',
     },
     {
       icon: Wind,
       title: 'Breathing Test',
-      description: 'Take a deep breath and slowly exhale for about 10 seconds.',
+      description: 'Take a deep breath and slowly exhale for about 5 seconds.',
       color: 'bg-purple-100 text-purple-600',
     },
   ];
@@ -43,7 +43,7 @@ export function Instructions() {
             Quick Respiratory Test
           </h1>
           <p className="text-gray-600">
-            This test takes <span className="font-semibold">about 30 seconds</span> and includes three short voice tasks.
+            This test takes <span className="font-semibold">about 15 seconds</span> and includes three short voice tasks.
           </p>
         </div>
 

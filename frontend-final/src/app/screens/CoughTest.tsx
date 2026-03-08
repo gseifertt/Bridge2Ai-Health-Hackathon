@@ -7,7 +7,7 @@ import { useAudioRecorder } from '../../hooks/useAudioRecorder';
 
 export function CoughTest() {
   const navigate = useNavigate();
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(5);
   const [waveformBars, setWaveformBars] = useState<number[]>(Array(20).fill(0));
   const { isRecording, isComplete, audioBlob, error, startRecording, stopRecording, reset } = useAudioRecorder();
 
@@ -25,7 +25,7 @@ export function CoughTest() {
     return () => clearInterval(interval);
   }, [isRecording]);
 
-  const handleStart = async () => { setTimeLeft(10); await startRecording(); };
+  const handleStart = async () => { setTimeLeft(5); await startRecording(); };
 
   const handleContinue = () => {
     if (!audioBlob) return;
@@ -97,7 +97,7 @@ export function CoughTest() {
               {isComplete && (
                 <>
                   <Button onClick={handleContinue} className="w-full bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white h-14 rounded-full text-lg">Continue to Next Step</Button>
-                  <Button onClick={() => { reset(); setTimeLeft(10); }} variant="outline" className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 h-14 rounded-full text-lg">Re-record</Button>
+                  <Button onClick={() => { reset(); setTimeLeft(5); }} variant="outline" className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 h-14 rounded-full text-lg">Re-record</Button>
                 </>
               )}
             </div>
